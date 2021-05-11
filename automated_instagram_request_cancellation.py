@@ -3,6 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
 driver = webdriver.Chrome()
 driver.get("https://www.instagram.com/accounts/login/?next=/accounts/access_tool/current_follow_requests")
@@ -38,15 +39,44 @@ try:
 
 except Exception as e:
     print("Error occured", e)
-
+j=0
 for i in insta_user:
     try:
         driver.get("https://www.instagram.com/"+i) #User profile page
         driver.implicitly_wait(10)
         driver.find_element(By.XPATH,'//*[@id="react-root"]/section/main/div/header/section/div[1]/div[1]/div/div/button').click() #Requested Button
         driver.implicitly_wait(10)
+        time.sleep(2)
+        
+
         driver.find_element(By.XPATH,'/html/body/div[5]/div/div/div/div[3]/button[1]').click() #Unfollow Button
-        driver.implicitly_wait(10)       
+        driver.implicitly_wait(10)
+        # time.sleep(2)
+
+        
+        try:
+            expected = "OK"
+            check = driver.find_element(By.XPATH,'/html/body/div[5]/div/div/div/div[2]/button[2]')
+            driver.implicitly_wait(10)
+            if check.text==expected:
+                check.click()
+                driver.get("https://www.instagram.com/"+i)
+                driver.implicitly_wait(10)
+                time.sleep(2)
+                print("Try Again Later We limit how often you can do certain things on Instagram to protect our community. Tell us if you think we made a mistake.")
+                exit()
+        except Exception as u:
+            
+            driver.get("https://www.instagram.com/"+i)
+            driver.implicitly_wait(10)
+            requested = driver.find_element(By.XPATH,'//*[@id="react-root"]/section/main/div/header/section/div[1]/div[1]/div/div/button')
+            driver.implicitly_wait(10)
+            if requested.text!="Requested":
+                j+=1
+                print ("Follow request "+ str(j)+" cancelled for: "+i)
+            else:
+                print ("Instagram User Problem Cannot cancel request for "+i)
+
     except Exception as u:
         print("Error occured in for loop", u)
         
